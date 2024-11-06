@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Toolbar, Button, Typography, Stack, Link } from '@mui/material';
+import { AppBar, Toolbar, Button, Typography, Stack, Link, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -7,8 +7,9 @@ import axios from 'axios';
 function Header() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
+    const [isScrolled, setIsScrolled] = useState(false);
 
-        useEffect(() => {
+    useEffect(() => {
         const checkUser = () => {
             const loggedInUser = sessionStorage.getItem('user');
             console.log('세션 스토리지 확인:', loggedInUser);
@@ -45,6 +46,21 @@ function Header() {
         console.log('현재 user 상태:', user);
     }, [user]);
 
+    // 스크롤 이벤트 감지
+    useEffect(() => {
+        const handleScroll = () => {
+            const offset = window.scrollY;
+            if (offset > 50) {  // 50px 이상 스크롤되면 투명 효과 적용
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     const handleLoginClick = () => {
         navigate('/login');
     };
@@ -70,7 +86,7 @@ function Header() {
     }
 
     const handleAMain = () => {
-        navigate('/admin/AMain');
+        navigate('/Admin/AMain');
     }
 
     const handleLogout = async () => {
@@ -91,66 +107,142 @@ function Header() {
     };
 
     return (
-        <AppBar position="static" style={{ backgroundColor: '#f5f7fa', boxShadow: 'none' }}>
-            <Toolbar style={{ justifyContent: 'space-between' }}>
-                {/* 로고 부분 */}
-                <Stack direction="row" alignItems="center">
-                    {/*<img src="/path_to_logo" alt="Logo" style={{ width: 40, marginRight: 10 }} />*/}
-                    <Typography variant="h6" style={{ color: '#2563EB', fontWeight: 'bold', marginLeft: '200px' }} onClick={handleHomeClick}>
-                        MyPage
-                    </Typography>
-                </Stack>
+        <Container 
+            maxWidth="xl" 
+            style={{ 
+                position: 'fixed',
+                top: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
+                width: '100%',
+                transition: 'all 0.3s ease-in-out',  // 부드러운 전환 효과
+            }}
+        >
+            <AppBar 
+                position="static" 
+                style={{ 
+                    // 스크롤 상태에서 투명도 조절
+                    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.6)' : '#ffffff',
+                    // 스크롤 상태에서 그림자 조절 and 원위치에서 그림자 조절
+                    boxShadow: isScrolled ? '0px 4px 20px rgba(0, 0, 0, 0.1)' : '1px 4px 6px 1px rgb(0 0 0 / 0.3)',
+                    // border 지름 조절
+                    borderRadius: '16px',
+                    width: '100%',
+                    margin: '0 auto',
+                    // 스크롤 상태에서 불러오는 효과 조절
+                    backdropFilter: isScrolled ? 'blur(10px)' : 'none',
+                    // transition = 부드러운 전환 효과
+                    transition: 'all 0.3s ease-in-out'
+                }}
+            >
+                <Toolbar style={{ justifyContent: 'space-between' }}>
+                    {/* justifyContent = 왼쪽 오른쪽 정렬, space-between = 왼쪽 오른쪽 간격 조절 */}
+                    {/* 로고 부분 */}
+                    <Stack direction="row" alignItems="center">
+                        {/* direction = 방향 조절, alignItems = 세로 정렬 */}
+                        <Typography 
+                            variant="h6" 
+                            style={{ 
+                                color: '#2563EB', 
+                                fontWeight: 'bold', 
+                                marginLeft: '40px'
+                            }} 
+                            onClick={handleHomeClick}
+                        >
+                            MyPage
+                        </Typography>
+                    </Stack>
 
-                {/* 네비게이션 메뉴 */}
-                <Stack direction="row" spacing={3}>
-                    <Link href="#" color="black" underline="none" onClick={handleVoiceRecordingClick}>
-                        메뉴1
-                    </Link>
-                    <Link href="#" color="black" underline="none" onClick={handleTransTextClick}>
-                        메뉴2
-                    </Link>
-                    <Link href="#" color="black" underline="none" onClick={handleUserBoard}>
-                        메뉴3
-                    </Link>
-                    <Link href="#" color="black" underline="none" onClick={handleAMain}>
-                        메뉴4
-                    </Link>
-                    <Link href="#" color="black" underline="none">
-                        메뉴5
-                    </Link>
-                    <Link href="#" color="black" underline="none">
-                        메뉴6
-                    </Link>
-                </Stack>
+                    {/* 네비게이션 메뉴 */}
+                    <Stack direction="row" spacing={3}>
+                        <Link href="#" 
+                            color="black" 
+                            underline="none" 
+                            onClick={handleVoiceRecordingClick}
+                            style={{ 
+                                // 스크롤 상태에서 투명도 조절
+                                opacity: isScrolled ? 0.8 : 1,
+                                // transition = 부드러운 전환 효과
+                                transition: 'opacity 0.3s ease-in-out'
+                            }}
+                        >
+                            메뉴1
+                        </Link>
+                        <Link href="#" color="black" underline="none" onClick={handleTransTextClick}>
+                            메뉴2
+                        </Link>
+                        <Link href="#" color="black" underline="none" onClick={handleUserBoard}>
+                            메뉴3
+                        </Link>
+                        <Link href="#" color="black" underline="none" onClick={handleAMain}>
+                            메뉴4
+                        </Link>
+                        <Link href="#" color="black" underline="none">
+                            메뉴5
+                        </Link>
+                        <Link href="#" color="black" underline="none">
+                            메뉴6
+                        </Link>
+                    </Stack>
 
-                <Stack direction="row" spacing={2} alignItems="center">
-                    {user ? (
-                        <>
-                            <Typography style={{ color: 'black' }}>
-                            {user.userNickname || user.name}님  {/* name도 체크 */}
-                            </Typography>
-                            <Button 
-                                variant="contained" 
-                                color="black" 
-                                style={{ backgroundColor: '#000000' }} 
-                                onClick={handleLogout}
-                            >
-                                로그아웃
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button variant="contained" color="black" style={{ backgroundColor: '#000000' }} onClick={handleLoginClick}>
-                                Sign in
-                            </Button>
-                            <Button variant="contained" color="black" style={{ backgroundColor: '#000000' }} onClick={handleSignupClick}>
-                                Sign up
-                            </Button>
-                        </>
-                    )}
-                </Stack>
-            </Toolbar>
-        </AppBar>
+                    {/* 로그인/회원가입 버튼 */}
+                    <Stack 
+                        direction="row" 
+                        spacing={2} 
+                        alignItems="center"
+                        style={{ marginRight: '40px' }}
+                    >
+                        {user ? (
+                            <>
+                                <Typography style={{ 
+                                    color: 'black',
+                                    opacity: isScrolled ? 0.8 : 1
+                                }}>
+                                    {user.userNickname || user.name}님
+                                </Typography>
+                                <Button 
+                                    variant="contained" 
+                                    style={{ 
+                                        backgroundColor: isScrolled ? 'rgba(0, 0, 0, 0.8)' : '#000000',
+                                        borderRadius: '8px',
+                                        transition: 'all 0.3s ease-in-out'
+                                    }} 
+                                    onClick={handleLogout}
+                                >
+                                    로그아웃
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button 
+                                    variant="contained" 
+                                    style={{ 
+                                        backgroundColor: isScrolled ? 'rgba(0, 0, 0, 0.8)' : '#000000',
+                                        borderRadius: '8px',
+                                        transition: 'all 0.3s ease-in-out'
+                                    }} 
+                                    onClick={handleLoginClick}
+                                >
+                                    Sign in
+                                </Button>
+                                <Button 
+                                    variant="contained" 
+                                    style={{ 
+                                        backgroundColor: isScrolled ? 'rgba(0, 0, 0, 0.8)' : '#000000',
+                                        borderRadius: '8px',
+                                        transition: 'all 0.3s ease-in-out'
+                                    }} 
+                                    onClick={handleSignupClick}
+                                >
+                                    Sign up
+                                </Button>
+                            </>
+                        )}
+                    </Stack>
+                </Toolbar>
+            </AppBar>
+        </Container>
     );
 }
 

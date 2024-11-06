@@ -4,6 +4,7 @@ import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import ImageSlider from './AppComponent/ImageSlider';
+import HeroSection from './AppComponent/HeroSection';
 
 function App() {
     const location = useLocation();
@@ -12,6 +13,9 @@ function App() {
     return (
         <div>
             {!isAdminPage && <Header /> }
+            {isHomePage && <HeroSection />}
+            {isHomePage && <HeroSection />}
+            {isHomePage && <HeroSection />}
             {/* {isHomePage && <ImageSlider />} */}
             <Main />
             {!isAdminPage && <Footer /> }
