@@ -1,13 +1,33 @@
-import React from 'react';
-import { AppBar, Toolbar, Button, Typography, Stack, Link, Container } from '@mui/material';
+import React, { useState } from 'react';
+import { 
+    AppBar, 
+    Toolbar, 
+    Button, 
+    Typography, 
+    Stack, 
+    Link, 
+    Container,
+    Drawer,
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Switch
+} from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useTheme } from './DarkMode/ThemeContext';
 import axios from 'axios';
 
 function Header() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const { isDarkMode, toggleTheme } = useTheme();
 
     useEffect(() => {
         const checkUser = () => {
@@ -106,6 +126,49 @@ function Header() {
         }
     };
 
+    const toggleDrawer = (open) => (event) => {
+        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            return;
+        }
+        setDrawerOpen(open);
+    };
+
+    const settingsDrawer = (
+        <Drawer
+            anchor="right"
+            open={drawerOpen}
+            onClose={toggleDrawer(false)}
+            PaperProps={{
+                sx: {
+                    width: 300,
+                    padding: '20px',
+                    backgroundColor: isDarkMode ? '#121212' : '#ffffff',
+                    color: isDarkMode ? '#ffffff' : '#000000',
+                }
+            }}
+        >
+            <List>
+                <ListItem>
+                    <Typography variant="h6" style={{ marginBottom: '20px' }}>
+                        설정
+                    </Typography>
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <DarkModeIcon color={isDarkMode ? 'primary' : 'action'} />
+                    </ListItemIcon>
+                    <ListItemText primary="다크 모드" />
+                    <Switch
+                        checked={isDarkMode}
+                        onChange={toggleTheme}
+                        color="primary"
+                    />
+                </ListItem>
+                {/* 추가 설정 항목들은 여기에 추가 */}
+            </List>
+        </Drawer>
+    );
+
     return (
         <Container 
             maxWidth="xl" 
@@ -122,7 +185,7 @@ function Header() {
             <AppBar 
                 position="static" 
                 style={{ 
-                    // 스크롤 상태에서 투명도 조절
+                    // 스크롤 상태에서 투명도 ���절
                     backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.6)' : '#ffffff',
                     // 스크롤 상태에서 그림자 조절 and 원위치에서 그림자 조절
                     boxShadow: isScrolled ? '0px 4px 20px rgba(0, 0, 0, 0.1)' : '1px 4px 6px 1px rgb(0 0 0 / 0.3)',
@@ -186,7 +249,7 @@ function Header() {
                         </Link>
                     </Stack>
 
-                    {/* 로그인/회원가입 버튼 */}
+                    {/* 로그인/회원가입 버튼 섹션 수정 */}
                     <Stack 
                         direction="row" 
                         spacing={2} 
@@ -201,6 +264,14 @@ function Header() {
                                 }}>
                                     {user.userNickname || user.name}님
                                 </Typography>
+                                <IconButton 
+                                    onClick={toggleDrawer(true)}
+                                    style={{
+                                        color: isScrolled ? 'rgba(0, 0, 0, 0.8)' : '#000000',
+                                    }}
+                                >
+                                    <SettingsIcon />
+                                </IconButton>
                                 <Button 
                                     variant="contained" 
                                     style={{ 
@@ -215,6 +286,14 @@ function Header() {
                             </>
                         ) : (
                             <>
+                                <IconButton 
+                                    onClick={toggleDrawer(true)}
+                                    style={{
+                                        color: isScrolled ? 'rgba(0, 0, 0, 0.8)' : '#000000',
+                                    }}
+                                >
+                                    <SettingsIcon />
+                                </IconButton>
                                 <Button 
                                     variant="contained" 
                                     style={{ 
@@ -242,11 +321,9 @@ function Header() {
                     </Stack>
                 </Toolbar>
             </AppBar>
+            {settingsDrawer}
         </Container>
     );
 }
 
 export default Header;
-
-
-
