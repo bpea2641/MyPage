@@ -11,8 +11,8 @@ import {
 import axios from 'axios';
 
 function UserBoardDetail() {
-  const { idx } = useParams();
   const navigate = useNavigate();
+  const { idx } = useParams();
   const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

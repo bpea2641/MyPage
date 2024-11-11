@@ -10,9 +10,9 @@ const SkillContainer = styled.div`
     align-items: center;
     min-height: 60vh;
     padding: 2rem;
-    opacity: ${props => (props.$inView ? 1 : 0)};
-    transform: translateY(${props => (props.$inView ? 0 : '50px')});
-    transition: all 1s ease-out;
+    opacity: ${props => (props.$inView ? 1 : 0)}; // opacity = 투명도
+    transform: translateY(${props => (props.$inView ? 0 : '50px')}); // translateY = 위치 이동
+    transition: all 1s ease-out; // 애니메이션 효과
 `;
 
 // TextSection에 애니메이션 추가
