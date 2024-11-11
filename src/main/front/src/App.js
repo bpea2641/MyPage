@@ -1,13 +1,12 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { ThemeProvider as StyledThemeProvider } from 'styled-components';
-import { ThemeProvider as CustomThemeProvider, useTheme } from './DarkMode/ThemeContext';
+import { useTheme } from './DarkMode/ThemeContext';
 import { lightTheme, darkTheme } from './DarkMode/theme';
 import { createGlobalStyle } from 'styled-components';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
-import ImageSlider from './AppComponent/ImageSlider';
 import HeroSection from './AppComponent/HeroSection';
 import Skill from './AppComponent/skill';
 import PageHits from './AppComponent/PageHits';
@@ -22,7 +21,7 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-function AppContent() {
+function App() {
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? darkTheme : lightTheme;
   const location = useLocation();
@@ -36,18 +35,9 @@ function AppContent() {
       {isHomePage && <HeroSection />}
       {isHomePage && <PageHits />}
       {isHomePage && <Skill />}
-      {/* {isHomePage && <ImageSlider />} */}
       <Main />
       {!isAdminPage && <Footer />}
     </StyledThemeProvider>
-  );
-}
-
-function App() {
-  return (
-    <CustomThemeProvider>
-      <AppContent />
-    </CustomThemeProvider>
   );
 }
 

@@ -8,6 +8,9 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"visitDate"})
+})
 public class PageVisitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +19,10 @@ public class PageVisitEntity {
     @Column(columnDefinition = "integer default 0")
     private Integer visitCount = 0;
 
-    @Column
+    @Column(unique = true)
     private LocalDate visitDate;
 
     public void increaseCount() {
-        this.visitCount++;
+        this.visitCount = (this.visitCount == null ? 0 : this.visitCount) + 1;
     }
 }

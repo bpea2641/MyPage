@@ -10,13 +10,17 @@ function UserBoardSave() {
     const handleBoardSave = async () => {
       try {
         await axios.post('/api/board/save', {
-          boardName: boardName,
-          boardText: boardText,
+          title: boardName,
+          content: boardText,
+          contentType: 'TEXT',
+          tags: [],
+          createdBy: 'anonymous'
         });
         alert('게시판 저장 성공');
         window.location.href = '/UserBoard';
       } catch (error) {
         setError('게시판 저장에 실패했습니다.');
+        console.error('Error:', error);
       }
     };
 

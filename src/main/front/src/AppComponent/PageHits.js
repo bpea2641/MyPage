@@ -37,18 +37,20 @@ function PageHits() {
     });
 
     useEffect(() => {
-        // 페이지 방문 기록
-        axios.post('/api/visits/record')
-            .catch(error => console.error('방문 기록 실패:', error));
-        
-        // 통계 데이터 가져오기
-        axios.get('/api/visits/statistics')
-            .then(response => {
+        const fetchData = async () => {
+            try {
+                // 페이지 방문 기록
+                await axios.post('/api/visits/record');
+                
+                // 통계 데이터 가져오기
+                const response = await axios.get('/api/visits/statistics');
                 setStats(response.data);
-            })
-            .catch(error => {
-                console.error('통계 데이터 로딩 실패:', error);
-            });
+            } catch (error) {
+                console.error('데이터 요청 실패:', error.response?.data || error.message);
+            }
+        };
+
+        fetchData();
     }, []);
 
     return (

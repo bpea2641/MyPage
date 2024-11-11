@@ -1,27 +1,25 @@
 package com.mypage.mypage.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Builder
 public class UserBoardDto {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idx;
-
-    @Column
-    private String boardName;
-
-    @Column
-    private String boardText;
-
-//    @Column
-//    private MultipartFile boardFile;
+    private String title;
+    private String content;
+    private String contentType;
+    private Integer parentIdx;
+    private List<String> tags = new ArrayList<>();
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String createdBy;
+    private List<UserBoardDto> children = new ArrayList<>();
+    private Boolean expanded = true;
 }
