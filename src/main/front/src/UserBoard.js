@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Drawer, IconButton, Typography, TextField, Paper } from '@mui/material';
+import { Box, Drawer, IconButton, Typography, Paper, TextField } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -7,6 +7,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // React Quill 스타일
 import axios from 'axios';
 import styled from 'styled-components';
 import { debounce } from 'lodash';
@@ -74,6 +76,26 @@ const SaveStatus = styled(Typography)`
   background: rgba(0, 0, 0, 0.1);
 `;
 
+const modules = {
+  toolbar: [
+    [{ 'header': [1, 2, false] }],
+    ['bold', 'italic', 'underline'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet'}],
+    [{ 'align': []}],
+    ['clean']
+  ],
+};
+
+const formats = [
+  'header',
+  'bold',
+  'italic',
+  'underline',
+  'list',
+  'bullet',
+  'align',
+]
+
 // 중첩된 페이지 아이템 컴포넌트
 const NestedPageItem = ({ page, level = 0, onSelect, onToggle, onAddSubPage, onDelete, currentPageId }) => {
   const [isExpanded, setIsExpanded] = useState(page.expanded);
@@ -128,7 +150,7 @@ const NestedPageItem = ({ page, level = 0, onSelect, onToggle, onAddSubPage, onD
                 e.stopPropagation();
                 onDelete(page.idx);
               }}
-              // 페이지 삭제 아이콘
+              // 페이지 삭 아이콘
             >
               <DeleteIcon fontSize="small" />
             </IconButton>
@@ -194,11 +216,8 @@ function UserBoard() {
   const debouncedSave = React.useCallback(
     debounce(async (pageId, content) => {
       setSaveStatus('저장 중...');
-
-      // 내용 저장 시도
       try {
         await axios.patch(`/api/board/${pageId}`, {
-          // 페이지 아이디와 내용 저장
           ...currentPage,
           content
         });
@@ -208,19 +227,15 @@ function UserBoard() {
         setSaveStatus('저장 실패');
       }
     }, 1000),
-    // 1초 후 저장
     [currentPage]
   );
 
   // 내용 변경 시 이벤트
-  const handleContentChange = (e) => {
-    const newContent = e.target.value;
+  const handleContentChange = (newContent) => {
     setContent(newContent);
-    // 내용 변경 시 이벤트
     if (currentPage) {
       debouncedSave(currentPage.idx, newContent);
     }
-    // 현재 페이지가 있으면 내용 저장
   };
 
   // 새 페이지 생성 이벤트
@@ -410,14 +425,13 @@ function UserBoard() {
         )}
         
         {currentPage ? (
-          <Editor
-            multiline
-            fullWidth
-            variant="outlined"
+          <ReactQuill
             value={content}
             onChange={handleContentChange}
             placeholder="여기에 내용을 입력하세요..."
-            minRows={20}
+            modules={modules} // 툴바 설정
+            formats={formats} // 포맷 설정
+            style={{ minHeight: '400px' }} // 최소 높이 설정
           />
         ) : (
           <Typography variant="h6" color="textSecondary" align="center">

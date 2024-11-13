@@ -5,9 +5,7 @@ import Signup from './Signup';
 import VoiceRecording from './VoiceRecording'; // VoiceRecording.js 파일을 임포트
 import TransTextList from './TransTextList'; // 방금 만든 TransTextList 컴포넌트
 import UserBoard from './UserBoard';
-import UserBoardSave from './UserBoardSave'
 import AMain from './Admin/AMain';
-import UserBoardDetail from './UserBoardDetail';
 
 function Main() {
     const location = useLocation();
@@ -24,8 +22,6 @@ function Main() {
                 <Route path="/voice-recording" element={<VoiceRecording />} />
                 <Route path="/transcripts" element={<TransTextList />} />
                 <Route path="/UserBoard" element={<UserBoard />} />
-                <Route path="/UserBoardSave" element={<UserBoardSave />} />
-                <Route path="/UserBoard/:idx" element={<UserBoardDetail />} />
                 <Route path="/Admin/*" element={<AMain />} />
             </Routes>
         </div>

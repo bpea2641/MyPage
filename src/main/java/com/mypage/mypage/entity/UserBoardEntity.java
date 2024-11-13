@@ -53,15 +53,17 @@ public class UserBoardEntity {
     @Column(name = "is_expanded", nullable = false, columnDefinition = "boolean default true")
     private Boolean expanded = true;
 
-    @PrePersist
+    @PrePersist // 엔티티가 처음으로 데이터베이스에 저장되기 전에 호출되는 어노테이션
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        // 새로운 게시글이 생성될 때 이 메서드가 호출되어 생성일과 수정일이 자동으로 기록.
     }
 
-    @PreUpdate
+    @PreUpdate // 엔티티가 데이터베이스에서 업데이트되기 전에 호출되는 어노테이션
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+        // 게시글이 수정될 때 이 메서드가 호출되어 수정일이 자동으로 갱신.
     }
 
     public static UserBoardEntity toUserBoardEntity(UserBoardDto dto) {
