@@ -73,4 +73,15 @@ public class UserBoardController {
         userBoardService.togglePage(idx, request.get("isExpanded")); // 서비스에서 확장 여부 토글
         return ResponseEntity.ok().build(); // 성공적으로 처리 되었을 때 build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePage(@PathVariable Integer id) {
+        try {
+            userBoardService.deletePage(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Error deleting page with id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } 
+    }
 }

@@ -141,4 +141,8 @@ public class UserBoardService {
         entity.setExpanded(isExpanded); // 확장 여부 설정
         userBoardRepository.save(entity);
     }
+
+    public void deletePage(Integer id) {
+        userBoardRepository.deleteById(id);
+    }
 }

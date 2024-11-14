@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Drawer, IconButton, Typography, Paper, TextField } from '@mui/material';
+import { Box, Drawer, IconButton, Typography, Paper, TextField, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import { debounce } from 'lodash';
 
 // 사이드바 넓이
-const DRAWER_WIDTH = 300;
+const DRAWER_WIDTH = 240;
 
 // Main 쪽 컨테이너, 해당 페이지를 담당하는 컨테이너
 const MainContainer = styled(Box)`
@@ -25,7 +25,7 @@ const MainContainer = styled(Box)`
 // 옆 사이드바 컨테이너
 const SideBar = styled(Box)`
   width: ${DRAWER_WIDTH}px;
-  flex-shrink: 0; // 컨테이너 크기 조절 시 줄어들지 않음
+  flex-shrink: 0; // 컨테이너 크기 조절 �� 줄어들지 음
   border-right: 1px solid rgba(0, 0, 0, 0.12);
 `;
 
@@ -34,6 +34,7 @@ const ContentArea = styled(Box)`
   flex-grow: 1; // 컨테이너 크기 조절 시 증가
   padding: 20px;
   background: #ffffff;
+  overflow: auto; // 스크롤 추가
 `;
 
 // 페이지 목록 컨테이너
@@ -99,64 +100,87 @@ const formats = [
 // 중첩된 페이지 아이템 컴포넌트
 const NestedPageItem = ({ page, level = 0, onSelect, onToggle, onAddSubPage, onDelete, currentPageId }) => {
   const [isExpanded, setIsExpanded] = useState(page.expanded);
-  // 페이지 확장 상태
-  // isExpanded = 가 어미 페이지를 따라감
+  const [anchorEl, setAnchorEl] = useState(null); // 메뉴 앵커 상태
 
-  const handleToggle = (e) => { // 페이지 확장 상태 토글
+  const handleToggle = (e) => {
     e.stopPropagation();
     setIsExpanded(!isExpanded);
     onToggle(page.idx, !isExpanded);
   };
 
-  const handleAddSubPage = (e) => { // 하위 페이지 추가
-    e.stopPropagation();
-    onAddSubPage(page.idx);
+  const handleContextMenu = (e) => {
+    e.preventDefault(); // 기본 우클릭 메뉴 방지
+    setAnchorEl(e.currentTarget); // 메뉴 앵커 설정
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null); // 메뉴 닫기
+  };
+
+  const handleDeletePage = async () => {
+    if (!window.confirm('정말 이 페이지를 삭제하시겠습니까?')) return; // 확인 메시지
+
+    try {
+      await axios.delete(`/api/board/${page.idx}`); // 페이지 삭제 API 호출
+      onDelete(page.idx); // 부모 컴포넌트의 onDelete 호출
+      handleClose(); // 메뉴 닫기
+    } catch (error) {
+      console.error('Error deleting page:', error);
+      alert('페이지 삭제 중 오류가 발생했습니다.'); // 오류 메시지
+    }
   };
 
   return (
     <>
-    {/* 페이지 아이템 컨테이너 = 페이지 목록 아이템 */}
       <PageItem 
-        sx={{ ml: level * 2 }} // ml = margin-left, level = 페이지 레벨
-        elevation={currentPageId === page.idx ? 3 : 1} // elevation = 그림자 효과
-        onClick={() => onSelect(page.idx)} // 페이지 선택 시 이벤트
+        sx={{ ml: level * 2, maxWidth: '100%' }} 
+        elevation={currentPageId === page.idx ? 3 : 1} 
+        onClick={() => onSelect(page.idx)} 
+        onContextMenu={handleContextMenu} // 우클릭 이벤트 추가
       >
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          {/* justify-content="space-between" = 양쪽 정렬 */}
-          {/* align-items="center" = 수직 정렬 */}
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="center" sx={{ flexGrow: 1, flexShrink: 1, maxWidth: 'calc(100% - 48px)' }}>
             {page.children?.length > 0 && (
-              // 하위 페이지가 있는 경우 확장 아이콘 표시
               <IconButton size="small" onClick={handleToggle}>
                 {isExpanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
               </IconButton>
             )}
-            <Typography variant="subtitle1">{page.title || "제목 없음"}</Typography>
-            {/* variant="subtitle1" = 서브타이틀 스타일 */}
-            {/* 페이지의 제목이 있으면 page.title 표시, 없으면 "제목 없음" 표시 */}
-          </Box>
-          <Box>
-            <IconButton 
-              size="small" 
-              onClick={handleAddSubPage}
-              sx={{ mr: 1 }} // mr = margin-right = 오른쪽 여백
-            >
-              <AddCircleOutlineIcon fontSize="small" />
-              {/* 하위 페이지 추가 아이콘 */}
-            </IconButton>
-            <IconButton 
-              size="small" 
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(page.idx);
+            <Typography 
+              variant="subtitle1" 
+              sx={{ 
+                whiteSpace: 'nowrap', 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis', 
+                fontSize: '0.9rem' 
               }}
-              // 페이지 삭 아이콘
             >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
+              {page.title || "제목 없음"}
+            </Typography>
           </Box>
         </Box>
       </PageItem>
+
+      {/* 메뉴 컴포넌트 추가 */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={(e) => {
+          e.stopPropagation();
+          onAddSubPage(page.idx);
+          handleClose();
+        }}>
+          <AddCircleOutlineIcon fontSize="small" /> 하위 페이지 추가
+        </MenuItem>
+        <MenuItem onClick={(e) => {
+          e.stopPropagation();
+          handleDeletePage(); // 페이지 삭제 함수 호출
+        }}>
+          <DeleteIcon fontSize="small" /> 페이지 삭제
+        </MenuItem>
+      </Menu>
+
       {isExpanded && page.children?.map(childPage => (
         <NestedPageItem
           key={childPage.idx}
@@ -186,8 +210,8 @@ function UserBoard() {
     fetchPages(); // 페이지 목록 가져오기
     const handleResize = () => setIsMobile(window.innerWidth < 600); // 모바일 화면 여부 확인
     window.addEventListener('resize', handleResize);
-    // 브라우저 크기 변경 시 이벤트 추가, resize 이벤트 발생 시 handleResize 함수 호출
-    handleResize(); // 모바일 화면 여부 확인
+    // 브라우저 크기 변경 시 이벤트 추가, resize 이벤트 발생 시 handleResize 함수 출
+    handleResize(); // 모바일 화면 ���부 확인
     return () => window.removeEventListener('resize', handleResize); // 브라우저 크기 변경 시 이벤트 제거
   }, []);
 
@@ -373,7 +397,7 @@ function UserBoard() {
           sx={{ width: DRAWER_WIDTH }} // 사이드바 넓이
         >
           {sideBarContent} 
-          {/* 사이드바 컨텐츠 */}
+          {/* 사이드바 컨텐��� */}
         </Drawer>
       ) : (
         <SideBar>{sideBarContent}</SideBar>
